@@ -56,15 +56,11 @@ while sair:
         case 1:
             print("Opção de Venda selecionada.")
 
-            for i in range (len(Venda["marca"])):
-               print(f"Marca: {Venda['marca'][i]}-{i+1} ")
-            marca_escolhida = int(input("Escolha a marca do veiculo que deseja comprar (1-3): ")) -1
+            
 
-            for j in range (len(Venda["modelo"])):
-               print(f"Modelo: {Venda['modelo'][j]}-{j+1} ")
+            marca_escolhida = lista_veiculos()
+            preco = Venda["veiculos"][marca_escolhida]["FIPE"]
 
-            modelo_escolhido = int(input("Escolha o modelo do veiculo que deseja comprar (1-3): ")) -1
-            preco = Venda["FIPE"][(marca_escolhida)]
             print(f"O preço do veiculo escolhido é R$ {preco:.2f}.\nCom um desconto de 12%, o valor final é R$ {desconto(preco):.2f}.")
 
             confirmacao = input("Deseja finalizar a compra? (s/n): ").strip().lower()
@@ -72,7 +68,7 @@ while sair:
                 if Usuario["Saldo_disponivel"] >= desconto(preco):
                     print("Compra realizada com sucesso!")
                     Usuario["Saldo_disponivel"] -= desconto(preco)
-                    Usuario["compras"].append([Venda["marca"][marca_escolhida], Venda["modelo"][modelo_escolhido]])
+                    Usuario["compras"].append([Venda["marca"][marca_escolhida], Venda["modelo"][marca_escolhida]])
                     print(f"Saldo restante: R$ {Usuario['Saldo_disponivel']:.2f}")
                 else:
                     print("Saldo insuficiente para a compra.")
@@ -89,23 +85,24 @@ while sair:
                 carro_alugado = lista_veiculos()
                 print("\n ") 
 
-                dias = int(input("Por quantos dias deseja alugar o veiculo? o aluguel custa R$77,00 por dia. "))
-                valor_aluguel = 77 * dias
+                
 
                 if (Venda["veiculos"][carro_alugado]["status"] == "INDISPONIVEL"):
                     print("Veiculo indisponivel para aluguel.")
                     break
+            dias = int(input("Por quantos dias deseja alugar o veiculo? o aluguel custa R$77,00 por dia. "))
+            valor_aluguel = 77 * dias
 
-                if(Usuario["Saldo_disponivel"] >= valor_aluguel):
+            if(Usuario["Saldo_disponivel"] >= valor_aluguel):
                     print(f"Aluguel realizado com sucesso! Valor total: R$ {valor_aluguel:.2f}")
                     Usuario["Saldo_disponivel"] -= valor_aluguel
                     print(f"Saldo restante: R$ {Usuario['Saldo_disponivel']:.2f}")
                     Venda["veiculos"][carro_alugado]["status"] = "INDISPONIVEL"
 
-                else:
+            else:
                     print("Saldo insuficiente para o aluguel.")
                 
-                confirmacao2=input("deseja alugar mais algum veiculo? (s/n): ").strip().lower()
+            confirmacao2=input("deseja alugar mais algum veiculo? (s/n): ").strip().lower()
 
 
         
