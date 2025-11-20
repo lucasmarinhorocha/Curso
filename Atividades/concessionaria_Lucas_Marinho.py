@@ -1,8 +1,8 @@
-marca = ["Toyota", "Honda", "Ford"]
-modelo = ["Corolla", "Civic", "Focus"]
+marca = []
+modelo = []
 
 Usuario = {
-    "compras" : [marca, modelo],
+    "compras" : [],
     "Saldo_disponivel" : 0.0,
     "nome" : "",
     "telefone" : 0.0,
@@ -123,18 +123,23 @@ while sair:
                     print(f"Aluguel realizado com sucesso! Valor total: R$ {valor_aluguel:.2f}")
                     Usuario["Saldo_disponivel"] -= valor_aluguel
                     print(f"Saldo restante: R$ {Usuario['Saldo_disponivel']:.2f}")
-                    Venda["veiculos"].remove(Venda["veiculos"][carro_alugado])
+                  
+                  
 
+                    Usuario["compras"].append({"marca": Venda["veiculos"][carro_alugado]["marca"], "modelo": Venda["veiculos"][carro_alugado]["modelo"], "FIPE": Venda["veiculos"][carro_alugado]["FIPE"], "status": "DISPONIVEL"})
+                    Venda["veiculos"].remove(Venda["veiculos"][carro_alugado])
+                    print(f"Veículo alugado adicionado ao seu histórico de compras.{Usuario['compras']}")
                 else:
                     print("Saldo insuficiente para o aluguel.")
-                
+               
                 confirmacao2=input("deseja alugar mais algum veiculo? (s/n): ").strip().lower()
 
 
         
 
         case 3:
-            print("Opção de Compra selecionada.")
+            for chave, valor in Usuario.items():
+                print(f"{chave} : {valor}")
 
         case 4:
             print("Saindo...")
