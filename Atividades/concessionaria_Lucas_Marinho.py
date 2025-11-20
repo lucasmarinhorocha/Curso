@@ -17,6 +17,14 @@ Venda = {
 def desconto(preco):
     return preco - (preco * (12/100))
 
+def lista_veiculos():
+    for i in range(len(Venda["marca"])):
+        for j in range(len(Venda["modelo"])):
+            print(f"marca: {Venda['marca'][i]}-{i+1} || modelo: {Venda['modelo'][j]}-{j+1} ")
+    marca_alugada = int(input("Escolha a marca do veiculo que deseja alugar (1-3): "))-1 
+    print("\n ")
+    modelo_alugado = int(input("Escolha o modelo do veiculo que deseja alugar (1-3): ")) -1
+    return marca_alugada, modelo_alugado
 
 
 
@@ -71,13 +79,33 @@ while sair:
                 print("Compra cancelada.")
 
         case 2:
-            print("Opção de Aluguel selecionada.")
-            print("Informe o veiculo para a locoação da lista seguinte.")
-            for i in range(len(Venda["marca"])):
-                for j in range (len(Venda["modelo"])):
-                   print(f"marca: {Venda['marca'][i]}-{i+1} || modelo: {Venda['modelo'][j]} ")
+            confirmacao2 = 's'
+            while confirmacao2 != 'n':
+                print("Opção de Aluguel selecionada.")
+                print("Informe o veiculo para a locoação da lista seguinte.")
+                marca_alugada, modelo_alugado = lista_veiculos()
+                print("\n ") 
 
-            marca_alugada = int(input("Escolha a marca do veiculo que deseja alugar (1-3): ")) -1
+                dias = int(input("Por quantos dias deseja alugar o veiculo? o aluguel custa R$77,00 por dia. "))
+                valor_aluguel = 77 * dias
+
+                if Venda["marca"][marca_alugada] == "INDISPONIVEL" or Venda["modelo"][modelo_alugado] == "INDISPONIVEL":
+                    print("Veiculo indisponivel para aluguel.")
+                    break
+                if(Usuario["Saldo_disponivel"] >= valor_aluguel):
+                    print(f"Aluguel realizado com sucesso! Valor total: R$ {valor_aluguel:.2f}")
+                    Usuario["Saldo_disponivel"] -= valor_aluguel
+                    print(f"Saldo restante: R$ {Usuario['Saldo_disponivel']:.2f}")
+
+                    Venda["marca"][marca_alugada] = "INDISPONIVEL"
+                    Venda["modelo"][modelo_alugado] = "INDISPONIVEL" 
+                else:
+                    print("Saldo insuficiente para o aluguel.")
+                
+                confirmacao2=input("deseja alugar mais algum veiculo? (s/n): ").strip().lower()
+
+
+        
 
         case 3:
             print("Opção de Compra selecionada.")
