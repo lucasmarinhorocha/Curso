@@ -7,6 +7,21 @@ Usuario = {
     "nome" : "",
     "telefone" : 0.0,
 }
+geral= {
+     "carros": [
+    {"marca": "Toyota",     "modelo": "Corolla",     "FIPE": 90000, "status": "DISPONIVEL"},
+    {"marca": "Honda",      "modelo": "Civic",       "FIPE": 85000, "status": "DISPONIVEL"},
+    {"marca": "Ford",       "modelo": "Focus",       "FIPE": 80000, "status": "DISPONIVEL"},
+    {"marca": "Chevrolet",  "modelo": "Onix",        "FIPE": 70000, "status": "DISPONIVEL"},
+    {"marca": "Volkswagen", "modelo": "Gol",         "FIPE": 65000, "status": "DISPONIVEL"},
+    {"marca": "Fiat",       "modelo": "Argo",        "FIPE": 62000, "status": "DISPONIVEL"},
+    {"marca": "Hyundai",    "modelo": "HB20",        "FIPE": 68000, "status": "DISPONIVEL"},
+    {"marca": "Renault",    "modelo": "Kwid",        "FIPE": 55000, "status": "DISPONIVEL"},
+    {"marca": "Nissan",     "modelo": "Versa",       "FIPE": 78000, "status": "DISPONIVEL"},
+    {"marca": "Jeep",       "modelo": "Renegade",    "FIPE": 120000, "status": "DISPONIVEL"}
+]
+
+}
 
 Venda = {
     "veiculos": [
@@ -27,7 +42,9 @@ def lista_veiculos():
     print("Veículos disponíveis para aluguel:")
     for i, v in enumerate(Venda["veiculos"]):
         print(f"{i+1} - {v['marca']} {v['modelo']} || {v['status']}")
-    escolhido = int(input("Escolha o veículo (1-3): ")) - 1
+        
+    escolhido = int(input(f"Escolha o veículo (1-{i+1}): ")) - 1
+
     return escolhido
 
 
@@ -64,25 +81,27 @@ while sair:
             modelo_venda = input("Modelo: ").lower().strip()
             
             existe = False
-            for indice_marca in range(len(Venda["veiculos"])):
-                if (Venda["veiculos"][indice_marca]["marca"].lower() == marca_venda and
-                    Venda["veiculos"][indice_marca]["modelo"].lower() == modelo_venda):
+            for indice_marca in range(len(geral["carros"])):
+                if (geral["carros"][indice_marca]["marca"].lower() == marca_venda and
+                    geral["carros"][indice_marca]["modelo"].lower() == modelo_venda):
                      existe = True
                      break
                        
-            if not existe:
-                print("Veiculo não encontrado na lista de vendas.")
+            if  not existe:
+                print("Veiculo não encontrado na lista .")
                 continue
 
-            preco = Venda["veiculos"][indice_marca]["FIPE"]
+            preco = geral["carros"][indice_marca]["FIPE"]
             preco_descontado = desconto(preco, 12, False)
 
             print(f"O preço do veiculo escolhido é R$ {preco:.2f}.\nCom um desconto de 12%, o valor final é R$ {preco_descontado:.2f}.")
 
             confirmacao = input("Deseja finalizar a compra? (s/n): ").strip().lower()
+
             if confirmacao == 's':
                     print("Compra realizada com sucesso!")
                     Usuario["Saldo_disponivel"] += preco_descontado
+                 
                     Venda["veiculos"].append({"marca": marca_venda, "modelo": modelo_venda, "FIPE": preco, "status": "DISPONIVEL"})
                     print(f"Saldo total: R$ {Usuario['Saldo_disponivel']:.2f}")
             else:
@@ -94,26 +113,22 @@ while sair:
                 print("Informe o veiculo para a locoação da lista seguinte.")
                 
                 carro_alugado = lista_veiculos()
-                print("\n ") 
-
+                print("escolheu o veiculo:", Venda["veiculos"][carro_alugado]["marca"], Venda["veiculos"][carro_alugado]["modelo"]) 
+                  
                 
+                dias = int(input("Por quantos dias deseja alugar o veiculo? o aluguel custa R$77,00 por dia. "))
+                valor_aluguel = 77 * dias
 
-                if (Venda["veiculos"][carro_alugado]["status"] == "INDISPONIVEL"):
-                    print("Veiculo indisponivel para aluguel.")
-                    break
-            dias = int(input("Por quantos dias deseja alugar o veiculo? o aluguel custa R$77,00 por dia. "))
-            valor_aluguel = 77 * dias
-
-            if(Usuario["Saldo_disponivel"] >= valor_aluguel):
+                if(Usuario["Saldo_disponivel"] >= valor_aluguel):
                     print(f"Aluguel realizado com sucesso! Valor total: R$ {valor_aluguel:.2f}")
                     Usuario["Saldo_disponivel"] -= valor_aluguel
                     print(f"Saldo restante: R$ {Usuario['Saldo_disponivel']:.2f}")
-                    Venda["veiculos"][carro_alugado]["status"] = "INDISPONIVEL"
+                    Venda["veiculos"].remove(Venda["veiculos"][carro_alugado])
 
-            else:
+                else:
                     print("Saldo insuficiente para o aluguel.")
                 
-            confirmacao2=input("deseja alugar mais algum veiculo? (s/n): ").strip().lower()
+                confirmacao2=input("deseja alugar mais algum veiculo? (s/n): ").strip().lower()
 
 
         
