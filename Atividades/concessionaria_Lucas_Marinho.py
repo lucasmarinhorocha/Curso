@@ -17,8 +17,11 @@ Venda = {
 }
 
 
-def desconto(preco):
-    return preco - (preco * (12/100))
+def desconto(preco, percentual,acresimo):
+    if acresimo == True:
+         return preco + (preco * (percentual/100))
+    else:
+         return preco - (preco * (percentual/100))
 
 def lista_veiculos():
     print("Veículos disponíveis para aluguel:")
@@ -54,28 +57,36 @@ while sair:
 
     match opcao:
         case 1:
+        
             print("Opção de Venda selecionada.")
-
+            print("informe a marca e o modelo do veiculo que deseja vender")
+            marca_venda = input("Marca: ").lower().strip()
+            modelo_venda = input("Modelo: ").lower().strip()
             
+            existe = False
+            for indice_marca in range(len(Venda["veiculos"])):
+                if (Venda["veiculos"][indice_marca]["marca"].lower() == marca_venda and
+                    Venda["veiculos"][indice_marca]["modelo"].lower() == modelo_venda):
+                     existe = True
+                     break
+                       
+            if not existe:
+                print("Veiculo não encontrado na lista de vendas.")
+                continue
 
-            marca_escolhida = lista_veiculos()
-            preco = Venda["veiculos"][marca_escolhida]["FIPE"]
+            preco = Venda["veiculos"][indice_marca]["FIPE"]
+            preco_descontado = desconto(preco, 12, False)
 
-            print(f"O preço do veiculo escolhido é R$ {preco:.2f}.\nCom um desconto de 12%, o valor final é R$ {desconto(preco):.2f}.")
+            print(f"O preço do veiculo escolhido é R$ {preco:.2f}.\nCom um desconto de 12%, o valor final é R$ {preco_descontado:.2f}.")
 
             confirmacao = input("Deseja finalizar a compra? (s/n): ").strip().lower()
             if confirmacao == 's':
-                if Usuario["Saldo_disponivel"] >= desconto(preco):
                     print("Compra realizada com sucesso!")
-                    Usuario["Saldo_disponivel"] -= desconto(preco)
-                    Usuario["compras"].append([Venda["marca"][marca_escolhida], Venda["modelo"][marca_escolhida]])
-                    print(f"Saldo restante: R$ {Usuario['Saldo_disponivel']:.2f}")
-                else:
-                    print("Saldo insuficiente para a compra.")
-              
+                    Usuario["Saldo_disponivel"] += preco_descontado
+                    Venda["veiculos"].append({"marca": marca_venda, "modelo": modelo_venda, "FIPE": preco, "status": "DISPONIVEL"})
+                    print(f"Saldo total: R$ {Usuario['Saldo_disponivel']:.2f}")
             else:
-                print("Compra cancelada.")
-
+                    print("venda cancelada.")
         case 2:
             confirmacao2 = 's'
             while confirmacao2 != 'n':
