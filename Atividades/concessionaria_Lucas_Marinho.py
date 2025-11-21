@@ -1,5 +1,3 @@
-marca = []
-modelo = []
 
 Usuario = {
     "compras" : [],
@@ -93,46 +91,54 @@ while sair:
 
     match opcao:
         case 1:
-        
             print("Opção de Venda selecionada.")
-            print("informe a marca e o modelo do veiculo que deseja vender")
-            marca_venda = input("Marca: ").lower().strip()
-            modelo_venda = input("Modelo: ").lower().strip()
-            
+            print("Informe a marca e o modelo do veículo que deseja vender")
+
+            marca_venda = input("Marca: ").title().strip()
+            modelo_venda = input("Modelo: ").title().strip()
+
+            # Voltar ao menu
             if marca_venda == '0' or modelo_venda == '0':
                 retornar_ao_menu(0)
                 continue
-        
-        
-            
-            existe = False
-            for indice_marca in range(len(geral["carros"])):
-                if (geral["carros"][indice_marca]["marca"].lower() == marca_venda and
-                    geral["carros"][indice_marca]["modelo"].lower() == modelo_venda):
-                     existe = True
-                     break
-                       
-            if  not existe:
-                print("Veiculo não encontrado na lista .")
-                continue
 
+            # Procurar veículo
+            indice_marca = -1
+            for i in range(len(geral["carros"])):
+                if (geral["carros"][i]["marca"].lower() == marca_venda and
+                    geral["carros"][i]["modelo"].lower() == modelo_venda):
+                    indice_marca = i
+                    break
+
+            # Se não achou o veículo
+            if indice_marca == -1:
+                print("Veículo não encontrado na lista.")
+                continue   # <-- volta ao menu corretamente
+
+            # Aqui EXISTE um veículo. Então podemos acessar FIPE.
             preco = geral["carros"][indice_marca]["FIPE"]
             preco_descontado = desconto(preco, 12, False)
 
-            print(f"O preço do veiculo escolhido é R$ {preco:.2f}.\nCom um desconto de 12%, o valor final é R$ {preco_descontado:.2f}.")
+            print(f"O preço do veículo escolhido é R$ {preco:.2f}.")
+            print(f"Com desconto de 12%, o valor final é R$ {preco_descontado:.2f}.")
 
-            confirmacao = input("Deseja finalizar a compra? (s/n): ").strip().lower()
-            retornar_ao_menu(confirmacao)
-            continue
+            confirmacao = input("Deseja finalizar a venda? (s/n): ").strip().lower()
+
+            # Voltar ao menu com 0
+            if confirmacao == '0':
+                retornar_ao_menu(0)
+                continue
 
             if confirmacao == 's':
-                    print("Compra realizada com sucesso!")
-                    Usuario["Saldo_disponivel"] += preco_descontado
-                 
-                    adicionar_veiculo(marca_venda.title(), modelo_venda.title(), preco)
-                    print(f"Saldo total: R$ {Usuario['Saldo_disponivel']:.2f}")
+                print("Venda realizada com sucesso!")
+                Usuario["Saldo_disponivel"] += preco_descontado
+
+                adicionar_veiculo(marca_venda.title(), modelo_venda.title(), preco)
+
+                print(f"Saldo total: R$ {Usuario['Saldo_disponivel']:.2f}")
             else:
-                    print("venda cancelada.")
+                print("Venda cancelada.")
+
         case 2:
             confirmacao2 = 's'
             while confirmacao2 != 'n':
@@ -140,14 +146,12 @@ while sair:
                 print("Informe o veiculo para a locoação da lista seguinte.")
                 
                 carro_alugado = lista_veiculos()
-              
 
                 if carro_alugado < 0 :
                     retornar_ao_menu(carro_alugado)  
                     break
                 print("escolheu o veiculo:", Venda["veiculos"][carro_alugado]["marca"], Venda["veiculos"][carro_alugado]["modelo"]) 
                   
-                
                 dias = int(input("Por quantos dias deseja alugar o veiculo? o aluguel custa R$77,00 por dia. "))
                 if dias == 0:
                     retornar_ao_menu(dias)  
@@ -158,8 +162,6 @@ while sair:
                     print(f"Aluguel realizado com sucesso! Valor total: R$ {valor_aluguel:.2f}")
                     Usuario["Saldo_disponivel"] -= valor_aluguel
                     print(f"Saldo restante: R$ {Usuario['Saldo_disponivel']:.2f}")
-                  
-                  
 
                     adicionar_Usuario_compra(carro_alugado)
                     remover_veiculo(carro_alugado)
@@ -167,10 +169,7 @@ while sair:
                 else:
                     print("Saldo insuficiente para o aluguel.")
                
-                confirmacao2=input("deseja alugar mais algum veiculo? (s/n): ").strip().lower()
-
-
-        
+                confirmacao2 = input("deseja alugar mais algum veiculo? (s/n): ").strip().lower()
 
         case 3:
             loop = 's'
@@ -178,7 +177,6 @@ while sair:
                 print("Opção de Compra selecionada.")
                 print("Informe o veiculo para a compra da lista seguinte.")
                 carro_comprado = lista_veiculos()
-                
                 
                 if carro_comprado < 0 :
                     retornar_ao_menu(carro_comprado)  
@@ -202,9 +200,11 @@ while sair:
                         print("Saldo insuficiente para a compra.")
 
                 loop = input("deseja comprar mais algum veiculo?(s/n): ").strip().lower()
+
         case 4:
             print("Saindo do sistema. Obrigado por visitar nossa concessionária!")
             sair = False
+
         case _:
             print("Opção inválida. Por favor, escolha uma opção entre 1 e 4.")
             
