@@ -39,7 +39,7 @@ def desconto(preco, percentual,acresimo):
          return preco - (preco * (percentual/100))
 
 def lista_veiculos():
-    print("Veículos disponíveis para aluguel:")
+    print("Veículos disponíveis:")
     for i, v in enumerate(Venda["veiculos"]):
         print(f"{i+1} - {v['marca']} {v['modelo']} || {v['status']}")
         
@@ -148,7 +148,35 @@ while sair:
         
 
         case 3:
-            pass  # Adicione a lógica de compra de veículos aqui futuramente
+            loop = 's'
+            while loop != 'n':
+                print("Opção de Compra selecionada.")
+                print("Informe o veiculo para a compra da lista seguinte.")
+                carro_comprado = lista_veiculos()
+
+                preco_compra = Venda["veiculos"][carro_comprado]["FIPE"]
+                preco_com_desconto = desconto(preco_compra, 25, True)
+
+                print(f"O preço do veiculo escolhido é R$ {preco_compra:.2f}.\nCom um acrescimo de 25%, o valor final é R$ {preco_com_desconto:.2f}.")
+                confirmacao3 = input("Deseja finalizar a compra? (s/n): ").strip().lower()
+                if confirmacao3 == 's':
+                    if(Usuario["Saldo_disponivel"] >= preco_com_desconto):
+                        print("Compra realizada com sucesso!")
+                        Usuario["Saldo_disponivel"] -= preco_com_desconto
+                        print(f"Saldo restante: R$ {Usuario['Saldo_disponivel']:.2f}")
+
+                        adicionar_Usuario_compra(carro_comprado)
+                        remover_veiculo(carro_comprado)
+                        print(f"Veículo comprado adicionado ao seu histórico de compras.{Usuario['compras']}")
+                    else:
+                        print("Saldo insuficiente para a compra.")
+
+                loop = input("deseja comprar mais algum veiculo?(s/n): ").strip().lower()
+        case 4:
+            print("Saindo do sistema. Obrigado por visitar nossa concessionária!")
+            sair = False
+        case _:
+            print("Opção inválida. Por favor, escolha uma opção entre 1 e 4.")
             
 
         
