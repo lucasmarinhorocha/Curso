@@ -47,9 +47,19 @@ def lista_veiculos():
 
     return escolhido
 
+def adicionar_veiculo(marca, modelo, fipe):
+    Venda["veiculos"].append({"marca": marca, "modelo": modelo, "FIPE": fipe, "status": "DISPONIVEL"})
 
 
+def remover_veiculo(indice):
+    if 0 <= indice < len(Venda["veiculos"]):
+        del Venda["veiculos"][indice]
+    else:
+        print("Índice inválido. Nenhum veículo removido.")
 
+def adicionar_Usuario_compra(i):
+    Usuario["compras"].append({"marca": Venda["veiculos"][i]["marca"], "modelo": Venda["veiculos"][i]["modelo"], "FIPE": Venda["veiculos"][i]["FIPE"], "status": "DISPONIVEL"})
+     
 print("-----SEJA BEM-VINDO A CONCESSIONARIA-----")
 nome = input("Digite seu nome: ")
 telefone = input("Digite seu telefone: ")
@@ -102,7 +112,7 @@ while sair:
                     print("Compra realizada com sucesso!")
                     Usuario["Saldo_disponivel"] += preco_descontado
                  
-                    Venda["veiculos"].append({"marca": marca_venda, "modelo": modelo_venda, "FIPE": preco, "status": "DISPONIVEL"})
+                    adicionar_veiculo(marca_venda.title(), modelo_venda.title(), preco)
                     print(f"Saldo total: R$ {Usuario['Saldo_disponivel']:.2f}")
             else:
                     print("venda cancelada.")
@@ -126,8 +136,8 @@ while sair:
                   
                   
 
-                    Usuario["compras"].append({"marca": Venda["veiculos"][carro_alugado]["marca"], "modelo": Venda["veiculos"][carro_alugado]["modelo"], "FIPE": Venda["veiculos"][carro_alugado]["FIPE"], "status": "DISPONIVEL"})
-                    Venda["veiculos"].remove(Venda["veiculos"][carro_alugado])
+                    adicionar_Usuario_compra(carro_alugado)
+                    remover_veiculo(carro_alugado)
                     print(f"Veículo alugado adicionado ao seu histórico de compras.{Usuario['compras']}")
                 else:
                     print("Saldo insuficiente para o aluguel.")
@@ -138,12 +148,7 @@ while sair:
         
 
         case 3:
-            for chave, valor in Usuario.items():
-                print(f"{chave} : {valor}")
+            pass  # Adicione a lógica de compra de veículos aqui futuramente
+            
 
-        case 4:
-            print("Saindo...")
-            sair = False
-
-        case _:
-            print("Opção inválida.")
+        
