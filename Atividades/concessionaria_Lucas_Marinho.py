@@ -44,7 +44,9 @@ def lista_veiculos():
         print(f"{i+1} - {v['marca']} {v['modelo']} || {v['status']}")
         
     escolhido = int(input(f"Escolha o veículo (1-{i+1}): ")) - 1
-
+    if escolhido < 0 or escolhido >= len(Venda["veiculos"]):
+        print("Escolha inválida. Retornando ao menu principal.")
+        return -1
     return escolhido
 
 def adicionar_veiculo(marca, modelo, fipe):
@@ -60,7 +62,21 @@ def remover_veiculo(indice):
 def adicionar_Usuario_compra(i):
     Usuario["compras"].append({"marca": Venda["veiculos"][i]["marca"], "modelo": Venda["veiculos"][i]["modelo"], "FIPE": Venda["veiculos"][i]["FIPE"], "status": "DISPONIVEL"})
      
-print("-----SEJA BEM-VINDO A CONCESSIONARIA-----")
+def menu():
+    print("\n-----MENU DE OPÇÕES-----")
+    print("1 - Venda de veiculos")
+    print("2 - Aluguel de veiculos")
+    print("3 - Compra de veiculos")
+    print("4 - Sair")
+    opcao = int(input("Escolha uma opção (1-4) ou (0) em qualquer momento para voltar ao menu: "))
+    return opcao
+
+
+def retornar_ao_menu(voltar):
+    if voltar <= 0 :
+        return 
+
+    print("-----SEJA BEM-VINDO A CONCESSIONARIA-----")
 nome = input("Digite seu nome: ")
 telefone = input("Digite seu telefone: ")
 saldo = float(input("Digite o saldo disponível: R$ "))
@@ -73,14 +89,7 @@ sair = True
 
 while sair:
 
-    print("\n-----MENU DE OPÇÕES-----")
-    print("1 - Venda de veiculos")
-    print("2 - Aluguel de veiculos")
-    print("3 - Compra de veiculos")
-    print("4 - Sair")
-
-
-    opcao = int(input("Escolha uma opção (1-4): "))
+    opcao = menu()
 
     match opcao:
         case 1:
@@ -89,6 +98,12 @@ while sair:
             print("informe a marca e o modelo do veiculo que deseja vender")
             marca_venda = input("Marca: ").lower().strip()
             modelo_venda = input("Modelo: ").lower().strip()
+            
+            if marca_venda == '0' or modelo_venda == '0':
+                retornar_ao_menu(0)
+                continue
+        
+        
             
             existe = False
             for indice_marca in range(len(geral["carros"])):
@@ -107,6 +122,8 @@ while sair:
             print(f"O preço do veiculo escolhido é R$ {preco:.2f}.\nCom um desconto de 12%, o valor final é R$ {preco_descontado:.2f}.")
 
             confirmacao = input("Deseja finalizar a compra? (s/n): ").strip().lower()
+            retornar_ao_menu(confirmacao)
+            continue
 
             if confirmacao == 's':
                     print("Compra realizada com sucesso!")
@@ -123,10 +140,18 @@ while sair:
                 print("Informe o veiculo para a locoação da lista seguinte.")
                 
                 carro_alugado = lista_veiculos()
+              
+
+                if carro_alugado < 0 :
+                    retornar_ao_menu(carro_alugado)  
+                    break
                 print("escolheu o veiculo:", Venda["veiculos"][carro_alugado]["marca"], Venda["veiculos"][carro_alugado]["modelo"]) 
                   
                 
                 dias = int(input("Por quantos dias deseja alugar o veiculo? o aluguel custa R$77,00 por dia. "))
+                if dias == 0:
+                    retornar_ao_menu(dias)  
+                    break
                 valor_aluguel = 77 * dias
 
                 if(Usuario["Saldo_disponivel"] >= valor_aluguel):
@@ -153,6 +178,11 @@ while sair:
                 print("Opção de Compra selecionada.")
                 print("Informe o veiculo para a compra da lista seguinte.")
                 carro_comprado = lista_veiculos()
+                
+                
+                if carro_comprado < 0 :
+                    retornar_ao_menu(carro_comprado)  
+                    break
 
                 preco_compra = Venda["veiculos"][carro_comprado]["FIPE"]
                 preco_com_desconto = desconto(preco_compra, 25, True)
