@@ -97,12 +97,10 @@ while sair:
             marca_venda = input("Marca: ").title().strip()
             modelo_venda = input("Modelo: ").title().strip()
 
-            # Voltar ao menu
             if marca_venda == '0' or modelo_venda == '0':
                 retornar_ao_menu(0)
                 continue
 
-            # Procurar veículo
             indice_marca = -1
             for i in range(len(geral["carros"])):
                 if (geral["carros"][i]["marca"].lower() == marca_venda and
@@ -110,12 +108,10 @@ while sair:
                     indice_marca = i
                     break
 
-            # Se não achou o veículo
             if indice_marca == -1:
                 print("Veículo não encontrado na lista.")
-                continue   # <-- volta ao menu corretamente
+                continue   
 
-            # Aqui EXISTE um veículo. Então podemos acessar FIPE.
             preco = geral["carros"][indice_marca]["FIPE"]
             preco_descontado = desconto(preco, 12, False)
 
@@ -124,7 +120,6 @@ while sair:
 
             confirmacao = input("Deseja finalizar a venda? (s/n): ").strip().lower()
 
-            # Voltar ao menu com 0
             if confirmacao == '0':
                 retornar_ao_menu(0)
                 continue

@@ -27,18 +27,43 @@ azul_claro = (38, 170, 182)
 # Fonte
 fonte = pygame.font.SysFont(None, 40)
 
-# Objetos
-player = {"x": L // 2, "y": A - 50, "vel": 5, "tam": 40}
-obstaculo = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
-bonus = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
-projetil = {"x": 0, "y": 0, "vel": 50, "tam": 10}
-
-
-ponto = 0
-
 
 def alterar_tela(cor):
     tela.fill(cor)
+
+
+# Função para criar projetil
+def criar_projetil(rect_player):
+    return {
+        "x": rect_player.centerx - 5,
+        "y": rect_player.centery - 5,
+        "tam": 10,
+        "vel": 7
+    }
+
+
+# Função para atualizar e desenhar projeteis
+def atualizar_projeteis(projeteis, rect_obs, obstaculo, ponto):
+    for p in projeteis[:]:
+        p["y"] -= p["vel"]
+        rect_p = pygame.Rect(p["x"], p["y"], p["tam"], p["tam"])
+
+        # Se colidiu com obstáculo
+        if rect_p.colliderect(rect_obs):
+            projeteis.remove(p)  # remove o projetil
+            obstaculo["y"] = -obstaculo["tam"]
+            obstaculo["x"] = random.randint(0, L - obstaculo["tam"])
+            ponto += 1
+            obstaculo["vel"] += 0.2
+
+        # Se saiu da tela
+        elif p["y"] < 0:
+            projeteis.remove(p)
+
+        else:
+            pygame.draw.rect(tela, azul_claro, rect_p)
+
+    return projeteis, obstaculo, ponto
 
 
 def menu():
@@ -67,24 +92,32 @@ def menu():
                 rodando = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if botao_jogar.collidepoint(evento.pos):
-                    jogo()
+                    jogo(True)
                 elif botao_opcoes.collidepoint(evento.pos):
                     print("Tela de opções ainda não implementada")
                 elif botao_sair.collidepoint(evento.pos):
                     rodando = False
 
 
-def jogo():
-    global ponto
-    rodando = True
+def jogo(acionado):
+    # reinicia os objetos sempre que o jogo começa
+    player = {"x": L // 2, "y": A - 50, "vel": 5, "tam": 40}
+    obstaculo = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
+    bonus = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
+    projeteis = []
+    ponto = 0
+
     relogio = pygame.time.Clock()
 
-    while rodando:
+    while acionado:
         relogio.tick(60)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
-                rodando = False
+                acionado = False
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_SPACE:
+                    projeteis.append(criar_projetil(rect_player))
 
         # CONTROLE DO JOGADOR
         teclas = pygame.key.get_pressed()
@@ -92,14 +125,6 @@ def jogo():
             player["x"] -= player["vel"]
         if teclas[pygame.K_RIGHT] and player["x"] < L - player["tam"]:
             player["x"] += player["vel"]
-
-       
-       # if projetil["x"] < player["x"]:
-        #    projetil["x"] += player["vel"]
-        #if projetil["x"] > player["x"]:
-        #    projetil["x"] -= player["vel"]
-
-
 
         # MOVIMENTO DOS OBJETOS
         obstaculo["y"] += obstaculo["vel"]
@@ -118,7 +143,6 @@ def jogo():
             bonus["x"] = random.randint(0, L - bonus["tam"])
 
         # TRANSFORMAR EM RECT
-        rect_projetil = pygame.Rect(projetil["x"],projetil["y"],projetil["tam"],projetil["tam"])
         rect_player = pygame.Rect(player["x"], player["y"], player["tam"], player["tam"])
         rect_obs = pygame.Rect(obstaculo["x"], obstaculo["y"], obstaculo["tam"], obstaculo["tam"])
         rect_bonus = pygame.Rect(bonus["x"], bonus["y"], bonus["tam"], bonus["tam"])
@@ -126,7 +150,7 @@ def jogo():
         # COLISÃO COM OBSTÁCULO
         if rect_player.colliderect(rect_obs):
             print("Game Over!")
-            rodando = False
+            acionado = False
 
         # COLISÃO COM BÔNUS
         if rect_player.colliderect(rect_bonus):
@@ -137,11 +161,13 @@ def jogo():
 
         # DESENHO
         alterar_tela(preto)
-
         pygame.draw.rect(tela, azul, rect_player)
         pygame.draw.rect(tela, vermelho, rect_obs)
         pygame.draw.circle(tela, amarelo, rect_bonus.center, rect_bonus.width // 2)
-        pygame.draw.rect(tela,azul_claro,rect_projetil)
+
+        # Atualizar e desenhar projeteis
+        projeteis, obstaculo, ponto = atualizar_projeteis(projeteis, rect_obs, obstaculo, ponto)
+
         texto = fonte.render(f"Pontos: {ponto}", True, branco)
         tela.blit(texto, (10, 10))
 
