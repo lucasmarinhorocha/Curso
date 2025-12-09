@@ -7,6 +7,22 @@ pygame.init()
 L = 600
 A = 400
 
+#imagens
+nave = pygame.image.load("Nave_atari.png")
+fundo = pygame.image.load("espaço.webp")
+nave2 = pygame.image.load("Nave2.png")
+engrenagem = pygame.image.load("engrenagem.png")
+
+
+def escala(imagem,escala):
+    imagem = pygame.transform.scale(imagem, (escala, escala))
+    return imagem
+
+nave = escala(nave, 40)
+nave2 = escala(nave2, 40)
+engrenagem = escala(engrenagem, 40)
+fundo = pygame.transform.scale(fundo, (L, A))
+
 # Botões
 botao_jogar = pygame.Rect(200, 100, 200, 50)
 botao_opcoes = pygame.Rect(200, 180, 200, 50)
@@ -61,7 +77,7 @@ def atualizar_projeteis(projeteis, rect_obs, obstaculo, ponto):
             projeteis.remove(p)
 
         else:
-            pygame.draw.rect(tela, azul_claro, rect_p)
+            pygame.draw.rect(tela, amarelo, rect_p)
 
     return projeteis, obstaculo, ponto
 
@@ -92,14 +108,14 @@ def menu():
                 rodando = False
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if botao_jogar.collidepoint(evento.pos):
-                    jogo(True)
+                    jogo()
                 elif botao_opcoes.collidepoint(evento.pos):
                     print("Tela de opções ainda não implementada")
                 elif botao_sair.collidepoint(evento.pos):
                     rodando = False
 
 
-def jogo(acionado):
+def jogo():
     # reinicia os objetos sempre que o jogo começa
     player = {"x": L // 2, "y": A - 50, "vel": 5, "tam": 40}
     obstaculo = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
@@ -109,12 +125,14 @@ def jogo(acionado):
 
     relogio = pygame.time.Clock()
 
-    while acionado:
+    while True:
         relogio.tick(60)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 acionado = False
+
+
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_SPACE:
                     projeteis.append(criar_projetil(rect_player))
@@ -125,6 +143,10 @@ def jogo(acionado):
             player["x"] -= player["vel"]
         if teclas[pygame.K_RIGHT] and player["x"] < L - player["tam"]:
             player["x"] += player["vel"]
+        if teclas[pygame.K_UP] and player["y"] > 0:
+            player["y"] -= player["vel"]
+        if teclas[pygame.K_DOWN] and player["y"] < A - player["tam"]:
+            player["y"] += player["vel"]
 
         # MOVIMENTO DOS OBJETOS
         obstaculo["y"] += obstaculo["vel"]
@@ -150,7 +172,7 @@ def jogo(acionado):
         # COLISÃO COM OBSTÁCULO
         if rect_player.colliderect(rect_obs):
             print("Game Over!")
-            acionado = False
+            break
 
         # COLISÃO COM BÔNUS
         if rect_player.colliderect(rect_bonus):
@@ -164,12 +186,22 @@ def jogo(acionado):
         pygame.draw.rect(tela, azul, rect_player)
         pygame.draw.rect(tela, vermelho, rect_obs)
         pygame.draw.circle(tela, amarelo, rect_bonus.center, rect_bonus.width // 2)
+        tela.blit(fundo,(0,0))
+        
+        
 
         # Atualizar e desenhar projeteis
         projeteis, obstaculo, ponto = atualizar_projeteis(projeteis, rect_obs, obstaculo, ponto)
 
         texto = fonte.render(f"Pontos: {ponto}", True, branco)
         tela.blit(texto, (10, 10))
+        
+
+        
+        tela.blit(nave,(player["x"],player["y"]))
+        tela.blit(nave2,(obstaculo["x"], obstaculo["y"]))
+        tela.blit(engrenagem,(bonus["x"],bonus["y"]))
+
 
         pygame.display.update()
 
