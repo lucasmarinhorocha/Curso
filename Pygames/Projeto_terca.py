@@ -10,7 +10,7 @@ A = 400
 #imagens
 nave = pygame.image.load("Nave_atari.png")
 fundo = pygame.image.load("espaço.webp")
-nave2 = pygame.image.load("Nave2.png")
+nave2 = pygame.image.load("nave2.png")
 engrenagem = pygame.image.load("engrenagem.png")
 
 
@@ -24,6 +24,7 @@ engrenagem = escala(engrenagem, 40)
 fundo = pygame.transform.scale(fundo, (L, A))
 
 # Botões
+botao_voltar = pygame.Rect(200,180,200,50)
 botao_jogar = pygame.Rect(200, 100, 200, 50)
 botao_opcoes = pygame.Rect(200, 180, 200, 50)
 botao_sair = pygame.Rect(200, 260, 200, 50)
@@ -48,7 +49,6 @@ def alterar_tela(cor):
     tela.fill(cor)
 
 
-# Função para criar projetil
 def criar_projetil(rect_player):
     return {
         "x": rect_player.centerx - 5,
@@ -58,21 +58,18 @@ def criar_projetil(rect_player):
     }
 
 
-# Função para atualizar e desenhar projeteis
 def atualizar_projeteis(projeteis, rect_obs, obstaculo, ponto):
     for p in projeteis[:]:
         p["y"] -= p["vel"]
         rect_p = pygame.Rect(p["x"], p["y"], p["tam"], p["tam"])
 
-        # Se colidiu com obstáculo
         if rect_p.colliderect(rect_obs):
-            projeteis.remove(p)  # remove o projetil
+            projeteis.remove(p)
             obstaculo["y"] = -obstaculo["tam"]
             obstaculo["x"] = random.randint(0, L - obstaculo["tam"])
             ponto += 1
             obstaculo["vel"] += 0.2
 
-        # Se saiu da tela
         elif p["y"] < 0:
             projeteis.remove(p)
 
@@ -82,17 +79,68 @@ def atualizar_projeteis(projeteis, rect_obs, obstaculo, ponto):
     return projeteis, obstaculo, ponto
 
 
+# ---------- GAME OVER ----------
+def game_over():
+    rodando = True
+
+    # Criar dois botões centralizados
+    largura_botao = 220
+    altura_botao = 55
+
+    botao_continue = pygame.Rect((L - largura_botao)//2, 130, largura_botao, altura_botao)
+    botao_menu = pygame.Rect((L - largura_botao)//2, 210, largura_botao, altura_botao)
+
+    while rodando:
+        alterar_tela(preto)
+
+        # --- DESENHAR BOTÕES ---
+        pygame.draw.rect(tela, amarelo, botao_continue)
+        pygame.draw.rect(tela, amarelo, botao_menu)
+
+        # --- TEXTOS CENTRALIZADOS ---
+        texto_continue = fonte.render("Continuar", True, vermelho)
+        texto_menu = fonte.render("Voltar ao menu", True, azul_claro)
+
+        tela.blit(texto_continue, (botao_continue.centerx - texto_continue.get_width()//2,
+                                   botao_continue.centery - texto_continue.get_height()//2))
+
+        tela.blit(texto_menu, (botao_menu.centerx - texto_menu.get_width()//2,
+                               botao_menu.centery - texto_menu.get_height()//2))
+
+        pygame.display.update()
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if evento.type == pygame.MOUSEBUTTONDOWN:
+                if botao_continue.collidepoint(evento.pos):
+                    return "continue"
+                if botao_menu.collidepoint(evento.pos):
+                    return "menu"
+
+
+
+def reiniciar():
+    player = {"x": L // 2, "y": A - 50, "vel": 5, "tam": 40}
+    obstaculo = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
+    bonus = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
+    projeteis = []
+    ponto = 0
+    return player, obstaculo, bonus, projeteis, ponto
+
+
+# ---------- MENU ----------
 def menu():
     rodando = True
     while rodando:
         alterar_tela(branco)
 
-        # Desenhar botões
         pygame.draw.rect(tela, azul, botao_jogar)
         pygame.draw.rect(tela, azul, botao_opcoes)
         pygame.draw.rect(tela, vermelho, botao_sair)
 
-        # Texto nos botões
         texto_jogar = fonte.render("Jogar", True, branco)
         texto_opcoes = fonte.render("Opções", True, branco)
         texto_sair = fonte.render("Sair", True, branco)
@@ -105,24 +153,21 @@ def menu():
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
-                rodando = False
+                pygame.quit()     # ← ADICIONADO
+                sys.exit()
+
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if botao_jogar.collidepoint(evento.pos):
-                    jogo()
+                    return "jogo"
                 elif botao_opcoes.collidepoint(evento.pos):
                     print("Tela de opções ainda não implementada")
                 elif botao_sair.collidepoint(evento.pos):
-                    rodando = False
+                    return "sair"
 
 
+# ---------- JOGO PRINCIPAL ----------
 def jogo():
-    # reinicia os objetos sempre que o jogo começa
-    player = {"x": L // 2, "y": A - 50, "vel": 5, "tam": 40}
-    obstaculo = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
-    bonus = {"x": random.randint(0, L - 40), "y": -50, "vel": 5, "tam": 40}
-    projeteis = []
-    ponto = 0
-
+    player, obstaculo, bonus, projeteis, ponto = reiniciar()
     relogio = pygame.time.Clock()
 
     while True:
@@ -130,14 +175,13 @@ def jogo():
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
-                acionado = False
-
+                pygame.quit()      # ← ADICIONADO
+                sys.exit()
 
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_SPACE:
                     projeteis.append(criar_projetil(rect_player))
 
-        # CONTROLE DO JOGADOR
         teclas = pygame.key.get_pressed()
         if teclas[pygame.K_LEFT] and player["x"] > 0:
             player["x"] -= player["vel"]
@@ -148,66 +192,61 @@ def jogo():
         if teclas[pygame.K_DOWN] and player["y"] < A - player["tam"]:
             player["y"] += player["vel"]
 
-        # MOVIMENTO DOS OBJETOS
         obstaculo["y"] += obstaculo["vel"]
         bonus["y"] += bonus["vel"]
 
-        # RESETAR OBSTÁCULO
         if obstaculo["y"] > A:
             obstaculo["y"] = -obstaculo["tam"]
             obstaculo["x"] = random.randint(0, L - obstaculo["tam"])
             ponto += 1
             obstaculo["vel"] += 0.2
 
-        # RESETAR BÔNUS
         if bonus["y"] > A:
             bonus["y"] = -bonus["tam"]
             bonus["x"] = random.randint(0, L - bonus["tam"])
 
-        # TRANSFORMAR EM RECT
         rect_player = pygame.Rect(player["x"], player["y"], player["tam"], player["tam"])
         rect_obs = pygame.Rect(obstaculo["x"], obstaculo["y"], obstaculo["tam"], obstaculo["tam"])
         rect_bonus = pygame.Rect(bonus["x"], bonus["y"], bonus["tam"], bonus["tam"])
 
-        # COLISÃO COM OBSTÁCULO
         if rect_player.colliderect(rect_obs):
-            print("Game Over!")
-            break
+            escolha = game_over()
+            if escolha == "menu":
+                return
+            elif escolha == "continue":
+                player, obstaculo, bonus, projeteis, ponto = reiniciar()
+                continue
 
-        # COLISÃO COM BÔNUS
         if rect_player.colliderect(rect_bonus):
             ponto += 2
             bonus["vel"] += 0.5
             bonus["y"] = -bonus["tam"]
             bonus["x"] = random.randint(0, L - bonus["tam"])
 
-        # DESENHO
         alterar_tela(preto)
         pygame.draw.rect(tela, azul, rect_player)
         pygame.draw.rect(tela, vermelho, rect_obs)
         pygame.draw.circle(tela, amarelo, rect_bonus.center, rect_bonus.width // 2)
-        tela.blit(fundo,(0,0))
-        
-        
+        tela.blit(fundo, (0,0))
 
-        # Atualizar e desenhar projeteis
         projeteis, obstaculo, ponto = atualizar_projeteis(projeteis, rect_obs, obstaculo, ponto)
 
         texto = fonte.render(f"Pontos: {ponto}", True, branco)
         tela.blit(texto, (10, 10))
-        
 
-        
-        tela.blit(nave,(player["x"],player["y"]))
-        tela.blit(nave2,(obstaculo["x"], obstaculo["y"]))
-        tela.blit(engrenagem,(bonus["x"],bonus["y"]))
-
+        tela.blit(nave, (player["x"], player["y"]))
+        tela.blit(nave2, (obstaculo["x"], obstaculo["y"]))
+        tela.blit(engrenagem, (bonus["x"], bonus["y"]))
 
         pygame.display.update()
 
 
-# Inicia pelo menu
-menu()
+# ---------- LOOP PRINCIPAL ----------
+while True:
+    acionamento = menu()
 
-pygame.quit()
-sys.exit()
+    if acionamento == "jogo":
+        jogo()
+    elif acionamento == "sair":
+        pygame.quit()    # ← ADICIONADO
+        sys.exit()
